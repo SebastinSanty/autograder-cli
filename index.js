@@ -5,7 +5,6 @@ var figlet = require('figlet');
 var inquirer = require('inquirer');
 var Preferences = require('preferences');
 var Spinner = CLI.Spinner;
-var GithubAPI = require('github');
 var _ = require('lodash');
 var git = require('simple-git')();
 var touch = require('touch');
