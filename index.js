@@ -50,7 +50,7 @@ function init(callback) {
 		}
 	}
 	];
-	if (prefs.gitlab.time - Math.floor(Date.now() / 1000) < 7200) {
+	if (prefs.gitlab && prefs.gitlab.time - Math.floor(Date.now() / 1000) < 7200) {
 		timeLeft = 120 + (Math.floor(prefs.gitlab.time/60) - Math.floor(Date.now() / 60000));
 		console.log(chalk.blue("You are already authenticated. If this is not you, or you want to exit the session, use 'autograder exit'. Session will expire in " + timeLeft + ' minutes'));
 	} else {
