@@ -27,6 +27,6 @@
     "touch": "^1.0.0"
   },
   "bin": {
-  "ginit": "./index.js"
+  "autograder": "./index.js"
   }
 }
