@@ -105,7 +105,7 @@ function createRepo(callback) {
 			function (error, response, body) {
 				if (response.statusCode == 201) {
 					console.log(chalk.green('Successfully created online repo ' + labno));
-					git.addRemote('origin', 'http://127.0.0.1/' + prefs.gitlab.username + '/' + labno);
+					git.addRemote('autolab', 'http://127.0.0.1/' + prefs.gitlab.username + '/' + labno);
 				}
 				if (response.statusCode == 401 || response.statusCode == 403 ) {
 					console.log(chalk.red("Authentication problem!. Use 'autograder init' to authenticate." ))
@@ -169,8 +169,10 @@ function push() {
 	}];
 
 	inquirer.prompt(questions).then(function (answers) {
-
-		git.add('./*').commit(arguments[0]['message']).push('origin', 'master');
+		var status = new Spinner('Pushing the code');
+		status.start();
+		git.add('./*').commit(arguments[0]['message']).push('autolab', 'master');
+		status.stop();
 	});
 }
 
