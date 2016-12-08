@@ -22,6 +22,7 @@
     "lodash": "^4.17.2",
     "minimist": "^1.2.0",
     "preferences": "^0.2.1",
+    "request": "^2.79.0",
     "simple-git": "^1.64.0",
     "touch": "^1.0.0"
   }
