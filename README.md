@@ -24,3 +24,6 @@ Install all dependencies
 $ npm install -g
  ```
 Also a gitlab application should be running on localhost:80 (use docker)
+
+##Screenshot
+<img width="733" alt="screen shot 2016-12-08 at 7 13 51 pm" src="https://cloud.githubusercontent.com/assets/13795788/21012233/06f8b4da-bd7b-11e6-93b1-7ad78357803c.png">
