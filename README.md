@@ -5,6 +5,7 @@ A client command line interface for submissions to [JavaAutolab](https://github.
 * `autograder exit` - Wipes off the credentials. Will have to do an init again, to work with autograder.
 * `autograder online create` - Creates a repository on gitlab
 * `autograder online delete` - Deletes the specified repository
+* `autograder online changehost` - To change the host of the gitlab server
 * `autograder push` - Adds, commits, pushes the code
 
 Still coming

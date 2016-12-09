@@ -12,10 +12,18 @@ var touch = require('touch');
 var fs = require('fs');
 var request = require('request');
 var files = require('./lib/files');
+var https = require('https');
 
+hostpref = new Preferences('autolab.host');
+if (!hostpref.host) {
+	hostpref.host = {
+		host: 'https://autolab.bits-goa.ac.in',
+	}
+}
 
 function init(callback) {
 	prefs = new Preferences('in.ac.bits-goa.autolab');
+	console.log('Working on host ' + hostpref.host.host)
 	console.log(
 		chalk.yellow(
 			figlet.textSync('Autolab', { horizontalLayout: 'full' })
@@ -50,6 +58,24 @@ function init(callback) {
 		}
 	}
 	];
+
+	// if (!hostpref.host) {
+	// 	questions = questions.concat(
+	// 	{
+	// 		name: 'host',
+	// 		type: 'input',
+	// 		message: 'Enter the host to be accessed',
+	// 		validate: function(value) {
+	// 			if (value.length) {
+	// 				return true;
+	// 			}
+	// 			else {
+	// 				return 'Please enter the host';
+	// 			}
+	// 		}
+	// 	});
+	// }
+
 	if (prefs.gitlab && prefs.gitlab.time - Math.floor(Date.now() / 1000) < 7200) {
 		timeLeft = 120 + (Math.floor(prefs.gitlab.time/60) - Math.floor(Date.now() / 60000));
 		console.log(chalk.blue("You are already authenticated. If this is not you, or you want to exit the session, use 'autograder exit'. Session will expire in " + timeLeft + ' minutes'));
@@ -57,8 +83,13 @@ function init(callback) {
 		inquirer.prompt(questions).then(function(answers) {
 			var status = new Spinner('Authenticating you, please wait ...');
 			status.start()
+			var options = {
+				url: hostpref.host.host +'/api/v3/session?login=' + arguments['0']['username'] + '&password=' + arguments['0']['password'],
+				strictSSL: false,
+				secureProtocol: 'TLSv1_method'
+			}
 			request.post(
-				'http://127.0.0.1/api/v3/session?login=' + arguments['0']['username'] + '&password=' + arguments['0']['password'],
+				options,
 				function (error, response, body) {
 					status.stop()
 					token = JSON.parse(body)['private_token'];
@@ -82,6 +113,24 @@ function init(callback) {
 	} 
 }
 
+function changeHost() {
+	var hostname = [
+	{
+		name: 'host',
+		type: 'input',
+		message: 'Host name: ',
+		default: hostpref.host.host,
+
+	}]
+
+	inquirer.prompt(hostname).then(function(answers) {
+		hostpref.host = {
+			host: arguments['0']['host'],
+		}
+	})
+
+}
+
 function createRepo(callback) {
 	var questions = [
 	{
@@ -100,13 +149,18 @@ function createRepo(callback) {
 	inquirer.prompt(questions).then(function (answers) {
 		var prefs = new Preferences('in.ac.bits-goa.autolab');
 		var labno = 'lab' + arguments['0']['lab'];
+		var options = {
+				url: hostpref.host.host +'/api/v3/projects?private_token=' + prefs.gitlab.token,
+				strictSSL: false,
+				secureProtocol: 'TLSv1_method'
+			}
 		request.post(
-			'http://127.0.0.1/api/v3/projects?private_token=' + prefs.gitlab.token,
+			options,
 			{ json: {'name' : labno}},
 			function (error, response, body) {
 				if (response.statusCode == 201) {
 					console.log(chalk.green('Successfully created online repo ' + labno));
-					git.addRemote('autolab', 'http://127.0.0.1/' + prefs.gitlab.username + '/' + labno);
+					git.addRemote('autolab', hostpref.host.host +'/' + prefs.gitlab.username + '/' + labno);
 				}
 				if (response.statusCode == 401 || response.statusCode == 403 ) {
 					console.log(chalk.red("Authentication problem!. Use 'autograder init' to authenticate." ))
@@ -137,8 +191,13 @@ function deleteRepo(callback) {
 	inquirer.prompt(questions).then(function (answers) {
 		var prefs = new Preferences('in.ac.bits-goa.autolab');
 		var labno = 'lab' + arguments['0']['lab'];
+		var options = {
+			url: hostpref.host.host +'/projects/' + prefs.gitlab.username + '%2F' +labno +'?private_token=' + prefs.gitlab.token,
+			strictSSL: false,
+			secureProtocol: 'TLSv1_method'
+		}
 		request.delete(
-			'http://127.0.0.1/projects/' + prefs.gitlab.username + '%2F' +labno +'?private_token=' + prefs.gitlab.token,
+			options,
 			function (error, response, body) {
 				if (response.statusCode == 201) {
 					console.log(chalk.green('Successfully deleted' + labno));
@@ -187,6 +246,9 @@ if (argv._[0] == 'init') {
 	}
 	if (argv._[1] == 'delete') {
 		deleteRepo();
+	}
+	if (argv._[1] == 'changehost') {
+		changeHost();
 	}
 } else if (argv._[0] == 'push') {
 	push();
